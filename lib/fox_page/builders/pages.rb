@@ -10,19 +10,19 @@ module FoxPage
 
       def build_pages
         app.routes.each do |path, route|
-          puts "PAGE\t#{path} => #{route.base_name}"
+          puts "PAGE\t#{path} => #{route.base_name}##{route.method_name}"
 
           target_directory = File.join(output_directory, path)
           FileUtils.mkdir_p(target_directory)
 
           File.open(File.join(target_directory, "index.html"), "w") do |f|
-            f.puts render_route(route)
+            f.puts render_route(route, path)
           end
         end
       end
 
-      def render_route(route)
-        controller = spiced_controller(route).new
+      def render_route(route, path)
+        controller = spiced_controller(route, path).new
         controller.method(route.method_name).call
 
         layout = Tilt.new(layout_path(controller))
@@ -36,7 +36,7 @@ module FoxPage
       # for the sake of keeping the original classes sane while building, we
       # create a subclass of the original dynamically and inject common helpers
       # to it and also run before_actions
-      def spiced_controller(route) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/LineLength
+      def spiced_controller(route, path) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/LineLength
         Class.new(route.controller).tap do |klass| # rubocop:disable Metrics/BlockLength, Metrics/LineLength
           klass.include(Helpers::AppHelper.new(app))
           klass.include(Helpers::AssetsHelper)
@@ -59,6 +59,10 @@ module FoxPage
 
           klass.define_method(:params) do
             route.params
+          end
+
+          klass.define_method(:current_path) do
+            path
           end
 
           klass.define_method(:inspect) do |*args|
