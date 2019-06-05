@@ -57,6 +57,10 @@ module FoxPage
             # same difference
           end
 
+          klass.define_method(:params) do
+            route.params
+          end
+
           klass.define_method(:inspect) do |*args|
             # report that we are actually the controller, not some random
             # anonymous class

@@ -21,19 +21,19 @@ module FoxPage
       routes
     end
 
-    def root(target)
-      routes["/"] = parse_target(target)
+    def root(target, params: {})
+      routes["/"] = parse_target(target, params: params)
     end
 
-    def map(mapping)
+    def map(mapping, params: {})
       mapping.each do |path, target|
-        routes[path] = parse_target(target)
+        routes[path] = parse_target(target, params: params)
       end
     end
 
     private
 
-    def parse_target(target)
+    def parse_target(target, params: {})
       base_name, method_name = target.split("#")
       controller = Kernel.const_get("#{base_name}_controller".camelize)
       method_name = method_name.to_sym
@@ -43,7 +43,8 @@ module FoxPage
       OpenStruct.new(
         base_name: base_name,
         controller: controller,
-        method_name: method_name
+        method_name: method_name,
+        params: OpenStruct.new(params)
       )
     end
 
