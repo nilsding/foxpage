@@ -6,6 +6,7 @@ module FoxPage
   class SiteBuilder
     include Builders::Assets
     include Builders::FileCopy
+    include Builders::Models
     include Builders::Pages
 
     def self.build(app)
@@ -24,6 +25,7 @@ module FoxPage
 
       FileUtils.mkdir_p output_directory
 
+      load_models
       build_assets
       build_pages
       copy_public_files

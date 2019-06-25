@@ -25,6 +25,7 @@ module FoxPage
         # Set up application code loader
         @code_loader = Zeitwerk::Loader.new.tap do |loader|
           loader.push_dir(@root.join("app/controllers"))
+          loader.push_dir(@root.join("app/models"))
           loader.push_dir(@root.join("app/helpers"))
           loader.enable_reloading
           loader.setup

@@ -8,6 +8,7 @@ module FoxPage
     def initialize(app)
       @app = app
       @listener = Listen.to(app.root.join("app"),
+                            app.root.join("data"),
                             app.root.join("public"),
                             &method(:handle_modified_app))
       @server = WEBrick::HTTPServer.new(
