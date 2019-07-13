@@ -64,7 +64,7 @@ module FoxPage
           front_matter = {}
           if content =~ /\A(---\n.*\n)^(?:---)\s*$\n?/m
             content = Regexp.last_match.post_match
-            front_matter = YAML.safe_load(Regexp.last_match[1])
+            front_matter = YAML.safe_load(Regexp.last_match[1], [Time])
           end
 
           new front_matter.merge(id: id, content: content).to_deep_ostruct
