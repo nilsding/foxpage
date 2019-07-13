@@ -88,6 +88,10 @@ module FoxPage
             path
           end
 
+          klass.define_method(:current_controller_name) do
+            route.base_name
+          end
+
           klass.define_method(:inspect) do |*args|
             # report that we are actually the controller, not some random
             # anonymous class
