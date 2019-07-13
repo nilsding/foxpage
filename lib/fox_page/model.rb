@@ -97,6 +97,31 @@ module FoxPage
       end
     end
 
+    # define a parser method for attributes
+    # @example
+    #   require "time"
+    #
+    #   class BlogPost < FoxPage::Model[:dir]
+    #     def_parser :date do |date|
+    #       Time.parse(date)
+    #     end
+    #   end
+    #
+    #   # in the blog posts' front matter:
+    #   # ---
+    #   # title: foo
+    #   # date: Sat 13 Jul 13:38:43 CEST 2019
+    #   # ---
+    #
+    #   # then, anywhere else:
+    #   blog_post.date        # => 2019-07-13 13:38:43 +0200
+    #   blog_post.date.class  # => Time
+    def self.def_parser(attribute, &parser)
+      define_method(attribute) do
+        parser.call(@__ostruct[attribute])
+      end
+    end
+
     def self.all
       @__data
     end
