@@ -7,17 +7,40 @@ module FoxPage
   module Builders
     module Pages
       using Refinements::Camelize
+      using Refinements::Constantize
 
       def build_pages
         app.routes.each do |path, route|
-          puts "PAGE\t#{path} => #{route.base_name}##{route.method_name}"
+          if route.generate_all
+            model = route.generate_all.camelize.constantize
 
-          target_directory = File.join(output_directory, path)
-          FileUtils.mkdir_p(target_directory)
-
-          File.open(File.join(target_directory, "index.html"), "w") do |f|
-            f.puts render_route(route, path)
+            model.all.each do |item|
+              target_path = format(path, id: item.id)
+              build_single_page(target_path, route, id: item.id)
+            end
+            next
           end
+
+          build_single_page(path, route)
+        end
+      end
+
+      def build_single_page(target_path, route, params = {})
+        if params.empty?
+          params_log_str = ""
+        else
+          params_log_str = "(#{params.inspect})"
+          route = route.dup
+          route.params = OpenStruct.new(route.params.to_h.merge(params))
+        end
+
+        puts "PAGE\t#{target_path} => #{route.base_name}##{route.method_name}#{params_log_str}"
+
+        target_directory = File.join(output_directory, target_path)
+        FileUtils.mkdir_p(target_directory)
+
+        File.open(File.join(target_directory, "index.html"), "w") do |f|
+          f.puts render_route(route, target_path)
         end
       end
 

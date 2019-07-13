@@ -8,6 +8,12 @@ module FoxPage
           split("_").map(&:capitalize).join
         end
       end
+
+      refine Symbol do
+        def camelize
+          to_s.camelize.to_sym
+        end
+      end
     end
   end
 end
