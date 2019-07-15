@@ -51,11 +51,15 @@ module FoxPage
         controller = spiced_controller(route, path).new
         controller.method(route.method_name).call
 
-        layout = Tilt.new(layout_path(controller))
+        layout = layout_for(controller, route)
         page = Tilt.new(page_path(route))
 
         controller.instance_eval do
-          layout.render(self) { page.render(self) }
+          if layout
+            layout.render(self) { page.render(self) }
+          else
+            page.render(self)
+          end
         end
       end
 
@@ -127,9 +131,18 @@ module FoxPage
         end
       end
 
-      def layout_path(controller)
+      def layout_for(controller, route)
+        layout = controller.class.superclass.instance_variable_get(:@__use_layout_for)&.[](route.method_name)
+        return if layout == false
+
+        Tilt.new(layout_path(controller, layout))
+      end
+
+      def layout_path(controller, layout)
+        layout ||= controller.class.layout
+
         File
-          .join(views_path, controller.class.layout)
+          .join(views_path, layout)
           .tap(&method(:validate_file_exists))
       end
 

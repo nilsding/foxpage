@@ -19,12 +19,32 @@ module FoxPage
       @__generate_all = model
     end
 
-    def self.method_added(method_name)
-      return unless @__generate_all
-
-      @__generate_all_for ||= {}
-      @__generate_all_for[method_name] = @__generate_all
-      @__generate_all = nil
+    def self.use_layout(layout)
+      @__use_layout = layout
     end
+
+    def self.method_added(method_name)
+      return unless @__generate_all.nil? || @__use_layout.nil?
+
+      set_method_option(method_name, "generate_all")
+      set_method_option(method_name, "use_layout")
+    end
+
+    def self.set_method_option(method_name, option)
+      ivar_name = :"@__#{option}"
+      ivar_for_name = :"@__#{option}_for"
+
+      ivar_val = instance_variable_get(ivar_name)
+      return if ivar_val.nil?
+
+      instance_variable_set(ivar_name, nil)
+      unless instance_variable_get(ivar_for_name)
+        instance_variable_set(ivar_for_name, {})
+      end
+
+      instance_variable_get(ivar_for_name)[method_name] = ivar_val
+    end
+
+    private_class_method :set_method_option
   end
 end
