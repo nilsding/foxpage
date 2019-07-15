@@ -36,10 +36,13 @@ module FoxPage
 
         puts "PAGE\t#{target_path} => #{route.base_name}##{route.method_name}#{params_log_str}"
 
-        target_directory = File.join(output_directory, target_path)
-        FileUtils.mkdir_p(target_directory)
+        target_file = File.join(output_directory, target_path)
+        unless route.single_file
+          FileUtils.mkdir_p(target_file)
+          target_file = File.join(target_file, "index.html")
+        end
 
-        File.open(File.join(target_directory, "index.html"), "w") do |f|
+        File.open(target_file, "w") do |f|
           f.puts render_route(route, target_path)
         end
       end

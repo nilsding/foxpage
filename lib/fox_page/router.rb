@@ -25,9 +25,9 @@ module FoxPage
       routes["/"] = parse_target(target, params: params)
     end
 
-    def map(mapping, params: {})
+    def map(mapping, params: {}, single_file: false)
       mapping.each do |path, target|
-        routes[path] = parse_target(target, params: params)
+        routes[path] = parse_target(target, params: params, single_file: single_file)
       end
     end
 
@@ -70,7 +70,7 @@ module FoxPage
 
     private
 
-    def parse_target(target, params: {})
+    def parse_target(target, params: {}, single_file: false)
       base_name, method_name = target.split("#")
       controller = controller_for(base_name)
       method_name = method_name.to_sym
@@ -81,7 +81,8 @@ module FoxPage
         base_name: base_name,
         controller: controller,
         method_name: method_name,
-        params: params
+        params: params,
+        single_file: single_file
       )
     end
 
@@ -95,13 +96,14 @@ module FoxPage
       raise ArgumentError, "#{controller} does not define ##{method_name}"
     end
 
-    def make_target(base_name:, controller:, method_name:, params: {}, generate_all: nil)
+    def make_target(base_name:, controller:, method_name:, params: {}, generate_all: nil, single_file: false)
       OpenStruct.new(
         base_name: base_name,
         controller: controller,
         method_name: method_name,
         params: OpenStruct.new(params),
-        generate_all: generate_all
+        generate_all: generate_all,
+        single_file: single_file
       )
     end
   end
