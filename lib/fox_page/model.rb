@@ -30,16 +30,21 @@ module FoxPage
     end
 
     def self.inherited(subclass)
-      set_ivar_if_unset subclass, :@__storage_type, @__tmp_storage_type || DEFAULT_STORAGE_TYPE
-      set_ivar_if_unset subclass, :@__storage_type_opts, @__tmp_storage_type_opts || {}
+      set_ivar_if_unset subclass, :storage_type, DEFAULT_STORAGE_TYPE
+      set_ivar_if_unset subclass, :storage_type_opts, {}
 
       subclass.reload_all(@__app)
     end
 
-    def self.set_ivar_if_unset(subclass, ivar, value)
-      return if subclass.instance_variable_get(ivar)
+    def self.set_ivar_if_unset(subclass, ivar, default)
+      target_ivar = :"@__#{ivar}"
+      return if subclass.instance_variable_get(target_ivar)
 
-      subclass.instance_variable_set ivar, value
+      tmp_ivar = :"@__tmp_#{ivar}"
+      value = instance_variable_get tmp_ivar
+      instance_variable_set tmp_ivar, nil
+
+      subclass.instance_variable_set target_ivar, value || default
     end
     private_class_method :set_ivar_if_unset
 
