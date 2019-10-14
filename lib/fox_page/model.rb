@@ -60,10 +60,13 @@ module FoxPage
       when :dir
         default_opts = { extension: :md }
         opts = default_opts.merge(@__storage_type_opts)
-        files = Dir[app.root.join("data", data_name, "*.#{opts.fetch(:extension)}")]
+        base_data_dir = app.root.join("data", data_name)
+        files = Dir[File.join(base_data_dir, "**", "*.#{opts.fetch(:extension)}")]
 
         @__data = files.map do |fn|
-          id = File.basename(fn, ".#{opts.fetch(:extension)}")
+          id = File.join(File.dirname(fn).sub(/\A#{base_data_dir}/, ""),
+                         File.basename(fn, ".#{opts.fetch(:extension)}"))
+                   .sub(/\A(?:#{File::SEPARATOR})/, "")
           content = IO.read(fn)
 
           front_matter = {}
