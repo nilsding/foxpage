@@ -39,31 +39,37 @@ module FoxPage
       controller = controller_for(base_name)
       base_path = "/#{path}"
 
-      # show action needs some additional stuff to make it work
-      # since we have to know all the ids beforehand
-      if actions.delete :show
-        method_name = :show
-        validate_controller_method(controller, method_name)
-        route_path = "#{base_path}/%<id>s"
+      # insert a route with id 0 as index if generate_all was specified, but without the /id in the path
+      if actions.find(:index)
+        validate_controller_method(controller, :index)
 
-        routes[route_path] = make_target(
+        routes[base_path] = make_target(
           base_name: base_name,
           controller: controller,
-          method_name: method_name,
-          params: {},
-          generate_all: controller.instance_variable_get(:@__generate_all_for)&.[](method_name)
+          method_name: :index,
+          params: { id: 0 },
+          generate_all: nil
         )
       end
 
       actions.each do |action|
         method_name = action
         validate_controller_method(controller, method_name)
-        route_path = method_name == :index ? base_path : "#{base_path}/#{method_name}"
 
-        routes[route_path] = make_target(
+        generate_all = controller.instance_variable_get(:@__generate_all_for)&.[](method_name)
+
+        route_path = method_name == :index ? base_path : "#{base_path}/#{method_name}"
+        if generate_all
+          # :show gets a pretty id, whereas :index (and others) get it prefixed with /page
+          route_path = method_name == :show ? "#{base_path}/%<id>s" : "#{route_path}/page/%<id>s"
+        end
+
+        routes[route_path] ||= make_target(
           base_name: base_name,
           controller: controller,
-          method_name: method_name
+          method_name: method_name,
+          params: {},
+          generate_all: generate_all
         )
       end
     end

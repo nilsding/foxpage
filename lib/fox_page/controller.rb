@@ -15,6 +15,8 @@ module FoxPage
     end
 
     # Instructs the site builder to generate pages for all records of `model`.
+    # model can be a symbol (which will use an actual FoxPage::Model), or a
+    # Proc returning an Enumerable.
     def self.generate_all(model)
       @__generate_all = model
     end

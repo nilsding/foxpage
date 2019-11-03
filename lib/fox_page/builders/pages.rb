@@ -12,16 +12,28 @@ module FoxPage
       def build_pages
         app.routes.each do |path, route|
           if route.generate_all
-            model = route.generate_all.camelize.constantize
-
-            model.all.each do |item|
-              target_path = format(path, id: item.id)
-              build_single_page(target_path, route, id: item.id)
-            end
+            build_all_the_pages(path, route)
             next
           end
 
           build_single_page(path, route)
+        end
+      end
+
+      def build_all_the_pages(path, route)
+        enumerable =
+          if route.generate_all.is_a?(Symbol)
+            model = route.generate_all.camelize.constantize
+            model.all
+          else
+            route.generate_all.call
+          end
+
+        enumerable.each_with_index do |item, index|
+          id = (item.respond_to?(:id) && item.id) || index
+          # have page numbers start with 1
+          target_path = format(path, id: id == index ? id + 1 : id)
+          build_single_page(target_path, route, id: id)
         end
       end
 
