@@ -13,6 +13,7 @@ module FoxPage
         env = ::Sprockets::Environment.new(root)
         env.append_path("app/assets/stylesheets")
         env.append_path("app/assets/images")
+        env.append_path("app/assets/javascripts")
 
         manifest = ::Sprockets::Manifest.new(
           env, "./#{OUTPUT_DIRECTORY}/assets/.sprockets_manifest.json"
