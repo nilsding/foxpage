@@ -155,7 +155,13 @@ module FoxPage
           value_key_name = "__#{key}_value"
           key = value_key_name if object.respond_to?(value_key_name)
 
-          object.public_send(key) == value
+          returned_value = object.public_send(key)
+          case returned_value
+          when Array
+            returned_value.include?(value)
+          else
+            returned_value == value
+          end
         end
       end
     end

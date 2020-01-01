@@ -30,9 +30,16 @@ module FoxPage
           end
 
         enumerable.each_with_index do |item, index|
-          id = (item.respond_to?(:id) && item.id) || index
-          # have page numbers start with 1
-          target_path = format(path, id: id == index ? id + 1 : id)
+          if route.generate_all_ids
+            # generate_all returns ids
+            id = enumerable.at(index)
+            target_path = format(path, id: id)
+          else
+            id = (item.respond_to?(:id) && item.id) || index
+            # have page numbers start with 1
+            target_path = format(path, id: id == index ? id + 1 : id)
+          end
+
           build_single_page(target_path, route, id: id)
         end
       end

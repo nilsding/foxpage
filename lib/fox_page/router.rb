@@ -40,7 +40,7 @@ module FoxPage
       base_path = "/#{path}"
 
       # insert a route with id 0 as index if generate_all was specified, but without the /id in the path
-      if actions.find(:index)
+      if actions.include?(:index)
         validate_controller_method(controller, :index)
 
         routes[base_path] = make_target(
@@ -48,7 +48,8 @@ module FoxPage
           controller: controller,
           method_name: :index,
           params: { id: 0 },
-          generate_all: nil
+          generate_all: nil,
+          generate_all_ids: false
         )
       end
 
@@ -57,11 +58,16 @@ module FoxPage
         validate_controller_method(controller, method_name)
 
         generate_all = controller.instance_variable_get(:@__generate_all_for)&.[](method_name)
+        generate_all_ids = controller.instance_variable_get(:@__generate_all_ids_for)&.[](method_name)
 
         route_path = method_name == :index ? base_path : "#{base_path}/#{method_name}"
         if generate_all
           # :show gets a pretty id, whereas :index (and others) get it prefixed with /page
-          route_path = method_name == :show ? "#{base_path}/%<id>s" : "#{route_path}/page/%<id>s"
+          route_path = if generate_all_ids
+                         "#{base_path}/%<id>s"
+                       else
+                         method_name == :show ? "#{base_path}/%<id>s" : "#{route_path}/page/%<id>s"
+                       end
         end
 
         routes[route_path] ||= make_target(
@@ -69,7 +75,8 @@ module FoxPage
           controller: controller,
           method_name: method_name,
           params: {},
-          generate_all: generate_all
+          generate_all: generate_all,
+          generate_all_ids: generate_all_ids
         )
       end
     end
@@ -102,13 +109,14 @@ module FoxPage
       raise ArgumentError, "#{controller} does not define ##{method_name}"
     end
 
-    def make_target(base_name:, controller:, method_name:, params: {}, generate_all: nil, single_file: false)
+    def make_target(base_name:, controller:, method_name:, params: {}, generate_all: nil, generate_all_ids: false, single_file: false)
       OpenStruct.new(
         base_name: base_name,
         controller: controller,
         method_name: method_name,
         params: OpenStruct.new(params),
         generate_all: generate_all,
+        generate_all_ids: generate_all_ids,
         single_file: single_file
       )
     end

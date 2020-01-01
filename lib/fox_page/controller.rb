@@ -21,14 +21,20 @@ module FoxPage
       @__generate_all = model
     end
 
+    # Set this to true if `generate_all` returns IDs (i.e. urls)
+    def self.generate_all_ids(generate_all_ids)
+      @__generate_all_ids = generate_all_ids
+    end
+
     def self.use_layout(layout)
       @__use_layout = layout
     end
 
     def self.method_added(method_name)
-      return unless @__generate_all.nil? || @__use_layout.nil?
+      return unless @__generate_all.nil? || @__use_layout.nil? || @__generate_all_ids.nil?
 
       set_method_option(method_name, "generate_all")
+      set_method_option(method_name, "generate_all_ids")
       set_method_option(method_name, "use_layout")
     end
 
