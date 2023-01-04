@@ -4,9 +4,9 @@ App.draw_routes do
   # This defines the landing page of your website.
   root "home#index"
 
-  # Additional routes can be created by using `map`.
-  # For example to map `/projects` to the index method of ProjectsController,
+  # Additional routes can be created by using `route`.
+  # For example to route `/projects` to the index method of ProjectsController,
   # you can do this:
   #
-  # map "/projects" => "projects#index"
+  # route "/projects", to: "projects#index"
 end

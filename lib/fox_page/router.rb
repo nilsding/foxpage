@@ -25,10 +25,36 @@ module FoxPage
       routes["/"] = parse_target(target, params: params)
     end
 
-    def map(mapping, params: {}, single_file: false)
+    # compatibility method for old route definition syntax
+    #
+    # `def map(mapping, params: {}, single_file: false)`
+    #
+    # see Router#route for the new style
+    #
+    # example DEPRECATED usage:
+    #   map "/uses" => "uses#index"
+    def map(*args)
+      warn "Router#map is deprecated, use Router#route instead"
+
+      mapping = args.shift
+      rest = args.shift || {}
+      params = rest.fetch(:params, {})
+      single_file = rest.fetch(:single_file, false)
+      pp(
+        mapping:, params:, single_file:,
+      )
+
       mapping.each do |path, target|
         routes[path] = parse_target(target, params: params, single_file: single_file)
       end
+    end
+
+    # defines a new route
+    #
+    # example usage:
+    #   route "/uses", to: "uses#index"
+    def route(source, to:, params: {}, single_file: false)
+      routes[source] = parse_target(to, params: params, single_file: single_file)
     end
 
     RESOURCE_ACTIONS = %i[index show].freeze

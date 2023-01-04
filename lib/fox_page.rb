@@ -4,6 +4,7 @@ require "bundler"
 
 require "zeitwerk"
 loader = Zeitwerk::Loader.for_gem
+loader.ignore("#{__dir__}/foxpage.rb")
 begin
   loader.ignore Bundler.root
 rescue Bundler::GemfileNotFound # rubocop:disable Lint/HandleExceptions

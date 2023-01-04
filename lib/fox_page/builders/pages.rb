@@ -3,6 +3,12 @@
 require "tilt"
 require "fileutils"
 
+# Haml >= 6 ships its own template, so let the old Tilt version know about it.
+require "haml"
+Tilt::HamlTemplate = Haml::Template
+# use old default from Haml 5
+Haml::Template.options[:escape_html] = false
+
 module FoxPage
   module Builders
     module Pages
@@ -90,6 +96,7 @@ module FoxPage
           klass.include(Helpers::AppHelper.new(app))
           klass.include(Helpers::AssetsHelper)
           klass.include(Helpers::RenderHelper)
+          klass.include(Helpers::TagHelper)
 
           # include global ApplicationHelper if possible
           begin
